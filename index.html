@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA | Máquinas de Coser</title>
+<meta name="description" content="NOVA: máquinas de coser mecánicas, computarizadas y overlock. Precios en USD y Bs. con tasa oficial BCV.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bosque: '#0E1A14',
+        esmeralda: '#163326',
+        champagne: '#C9A06E',
+        neon: '#39FFA0',
+        cream: '#EFE9DF'
+      },
+      fontFamily: {
+        sans: ['Outfit', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif']
+      }
+    }
+  }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  html { scroll-padding-top: 130px; }
+  body { background: #0E1A14; color: #EFE9DF; }
+  .glass { background: rgba(14,26,20,.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .gold-btn { background: linear-gradient(135deg,#E3C293 0%,#C9A06E 45%,#A77C4A 100%); color:#0E1A14; transition: transform .25s, box-shadow .3s, filter .3s; }
+  .gold-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -8px rgba(201,160,110,.55); filter: brightness(1.06); }
+  .gold-btn:active { transform: translateY(0); }
+  .gold-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .ghost-btn { border: 1px solid rgba(201,160,110,.55); color: #C9A06E; transition: all .3s; }
+  .ghost-btn:hover { background: rgba(201,160,110,.12); }
+  .card { background: #163326; border: 1px solid rgba(201,160,110,.12); transition: transform .35s, border-color .35s, box-shadow .35s; }
+  .card:hover { transform: translateY(-4px); border-color: rgba(201,160,110,.45); box-shadow: 0 25px 50px -20px rgba(0,0,0,.6); }
+  .neon-text { color: #39FFA0; text-shadow: 0 0 12px rgba(57,255,160,.45); }
+  .neon-ring { box-shadow: 0 0 0 1px rgba(57,255,160,.45), 0 0 18px rgba(57,255,160,.22); }
+  .slide { transition: opacity .6s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+  .modal-box { animation: modalIn .4s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
+  .no-scroll { overflow: hidden; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(201,160,110,.35); border-radius: 9px; }
+  .chevron { transition: transform .3s; }
+  details[open] > summary .chevron { transform: rotate(180deg); }
+  summary::-webkit-details-marker { display: none; }
+  .drawer { transform: translateX(100%); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .drawer.open { transform: none; }
+  .drawer-left { transform: translateX(-100%); }
+  .drawer-left.open { transform: none; }
+  .overlay { opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s; }
+  .overlay.open { opacity: 1; visibility: visible; }
+  .shake { animation: shake .4s; }
+  @keyframes shake { 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+  .badge { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid rgba(201,160,110,.2); background: rgba(22,51,38,.5); border-radius: 9999px; padding: .45rem .95rem; }
+  .calc-range { accent-color: #C9A06E; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body class="font-sans antialiased min-h-screen overflow-x-hidden">
+
+<a href="#catalogo" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-champagne focus:px-4 focus:py-2 focus:text-bosque">Saltar al catálogo</a>
+
+<!-- ============ ENCABEZADO ============ -->
+<div class="fixed inset-x-0 top-0 z-50">
+  <div class="border-b border-champagne/15 bg-esmeralda/80 py-1.5 text-center text-[11px] tracking-wide sm:text-xs">
+    <span class="text-cream/70">Tasa oficial BCV</span>
+    <span class="bcv-rate neon-text mx-1 font-semibold">Cargando…</span>
+    <span class="bcv-status text-cream/45">· consultando</span>
+  </div>
+  <header id="siteHeader" class="glass transition-shadow duration-300">
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 lg:px-8">
+      <div class="flex items-center gap-2">
+        <button id="menuBtn" class="p-2 text-xl text-champagne lg:hidden" aria-label="Abrir menú" aria-controls="mobileMenu" aria-expanded="false">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <a href="#top" class="font-serif text-2xl tracking-[.3em] text-champagne">NOVA</a>
+      </div>
+
+      <nav class="hidden items-center gap-8 text-sm tracking-wide text-cream/75 lg:flex">
+        <a href="#top" class="transition hover:text-champagne">Destacados</a>
+        <a href="#catalogo" class="transition hover:text-champagne">Catálogo</a>
+        <a href="#calculadora" class="transition hover:text-champagne">Calculadora</a>
+        <a href="#contacto" class="transition hover:text-champagne">Contacto</a>
+      </nav>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="neon-ring hidden items-center gap-2 rounded-full px-3 py-1.5 text-xs md:flex">
+          <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon opacity-75"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-neon"></span>
+          </span>
+          <span class="text-cream/60">BCV</span>
+          <span class="bcv-rate neon-text font-semibold">--</span>
+        </div>
+        <button id="currencyBtn" class="rounded-full border border-champagne/35 px-3.5 py-2 text-xs font-semibold text-champagne transition hover:bg-champagne hover:text-bosque" aria-label="Cambiar moneda">USD $</button>
+        <button id="cartBtn" class="relative grid h-10 w-10 place-items-center rounded-full border border-champagne/35 text-champagne transition hover:bg-champagne hover:text-bosque" aria-label="Ver tu selección">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span id="cartCount" class="absolute -right-1 -top-1 grid h-5 min-w-[20px] place-items-center rounded-full bg-neon px-1 text-[11px] font-bold text-bosque transition-transform duration-200">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+</div>
+
+<main>
+<!-- ============ HERO + CARRUSEL ============ -->
+<section id="top" class="relative overflow-hidden pt-40 pb-14 lg:pt-44 lg:pb-12">
+  <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_15%,rgba(201,160,110,.20),transparent_50%),radial-gradient(ellipse_at_5%_95%,rgba(57,255,160,.08),transparent_45%)]"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 lg:px-8">
+    <div class="fade-in flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[.3em] text-champagne/80">Nueva colección 2026</p>
+        <h1 class="mt-2 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">Cose con <em class="text-champagne">precisión</em>,<br class="hidden sm:block"> crea sin límites</h1>
+      </div>
+      <span class="neon-ring inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm">
+        <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-neon"></span>
+        Tasa BCV en vivo: <b class="bcv-rate neon-text">Bs. --</b>
+      </span>
+    </div>
+
+    <ul class="mt-6 flex flex-wrap gap-2.5 text-xs text-cream/75">
+      <li class="badge"><i class="fa-solid fa-shield-halved text-champagne"></i>Garantía de fábrica de 2 años</li>
+      <li class="badge"><i class="fa-brands fa-whatsapp text-neon"></i>Asesoría directa por WhatsApp</li>
+      <li class="badge"><i class="fa-solid fa-scale-balanced text-champagne"></i>Precios en USD y Bs. con tasa BCV</li>
+    </ul>
+
+    <div class="mt-8 flex items-center justify-between text-xs uppercase tracking-[.3em] text-champagne/80">
+      <span>Selección destacada</span>
+      <span id="slideCounter" class="font-semibold text-cream/70">01 / 04</span>
+    </div>
+
+    <div id="carousel" class="relative mt-5 h-[660px] select-none sm:h-[560px] lg:h-[500px]">
+      <div id="slides" class="absolute inset-0"></div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-between">
+      <div id="dots" class="flex items-center gap-2"></div>
+      <div class="flex gap-3">
+        <button id="prevSlide" class="grid h-11 w-11 place-items-center rounded-full border border-champagne/35 text-champagne transition hover:bg-champagne hover:text-bosque" aria-label="Diapositiva anterior"><i class="fa-solid fa-arrow-left"></i></button>
+        <button id="nextSlide" class="grid h-11 w-11 place-items-center rounded-full border border-champagne/35 text-champagne transition hover:bg-champagne hover:text-bosque" aria-label="Diapositiva siguiente"><i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATÁLOGO ============ -->
+<section id="catalogo" class="mx-auto max-w-7xl scroll-mt-32 px-4 py-20 lg:px-8">
+  <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[.3em] text-champagne">Colección completa</p>
+      <h2 class="mt-2 font-serif text-4xl sm:text-5xl">El catálogo</h2>
+      <p class="mt-2 text-cream/60"><span id="resultCount">0</span> máquinas disponibles</p>
+    </div>
+    <div class="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-champagne/60"></i>
+        <input id="searchInput" type="search" placeholder="Buscar modelo…" class="w-full rounded-full border border-champagne/20 bg-esmeralda/60 py-3 pl-11 pr-4 text-sm placeholder:text-cream/40 focus:border-champagne focus:outline-none focus:ring-2 focus:ring-champagne/30 sm:w-64">
+      </div>
+      <select id="sortSelect" class="rounded-full border border-champagne/20 bg-esmeralda/60 px-5 py-3 text-sm text-cream focus:border-champagne focus:outline-none">
+        <option value="default">Destacados</option>
+        <option value="asc">Precio: menor a mayor</option>
+        <option value="desc">Precio: mayor a menor</option>
+        <option value="name">Nombre A–Z</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="filters" class="mt-8 flex flex-wrap gap-2">
+    <button data-cat="all" class="filter-btn rounded-full border px-5 py-2 text-sm transition">Todas</button>
+    <button data-cat="mecanica" class="filter-btn rounded-full border px-5 py-2 text-sm transition">Mecánicas</button>
+    <button data-cat="computarizada" class="filter-btn rounded-full border px-5 py-2 text-sm transition">Computarizadas</button>
+    <button data-cat="overlock" class="filter-btn rounded-full border px-5 py-2 text-sm transition">Overlock</button>
+  </div>
+
+  <div id="tagBar" class="sticky top-[104px] z-30 -mx-4 mt-6 border-y border-champagne/10 bg-bosque/90 px-4 py-3 backdrop-blur-md lg:-mx-8 lg:px-8">
+    <div id="tags" class="scrollbar-thin flex gap-2 overflow-x-auto pb-1"></div>
+  </div>
+
+  <div id="grid" class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4"></div>
+  <p id="emptyState" class="hidden py-16 text-center text-cream/60">No encontramos máquinas con esos criterios.</p>
+</section>
+
+<!-- ============ CALCULADORA DE RENDIMIENTO ============ -->
+<section id="calculadora" class="scroll-mt-32 border-y border-champagne/15 bg-esmeralda/30">
+  <div class="mx-auto grid max-w-7xl gap-12 px-4 py-20 lg:grid-cols-2 lg:gap-16 lg:px-8">
+    <div>
+      <p class="text-xs uppercase tracking-[.3em] text-champagne">Calculadora de rendimiento</p>
+      <h2 class="mt-2 font-serif text-4xl sm:text-5xl">Tu tiempo, <em class="text-champagne">en cifras</em></h2>
+      <p class="mt-4 max-w-md leading-relaxed text-cream/65">Estima el valor que puedes generar al coser en casa frente a pagar confección externa. Es una referencia orientativa: ajusta los valores a tu realidad.</p>
+
+      <div class="mt-10 space-y-8">
+        <div>
+          <label for="calcModel" class="block text-sm text-cream/75">Modelo</label>
+          <select id="calcModel" class="mt-2 w-full rounded-xl border border-champagne/20 bg-esmeralda/60 px-4 py-3 text-sm text-cream focus:border-champagne focus:outline-none"></select>
+        </div>
+        <div>
+          <div class="flex items-center justify-between gap-4 text-sm text-cream/75">
+            <label for="calcHours">Horas de costura por semana</label>
+            <span id="calcHoursOut" class="font-semibold text-champagne">6 h</span>
+          </div>
+          <input id="calcHours" type="range" min="1" max="40" step="1" value="6" class="calc-range mt-3 w-full">
+        </div>
+        <div>
+          <div class="flex items-center justify-between gap-4 text-sm text-cream/75">
+            <label for="calcRate">Tarifa que pagarías por hora de confección externa</label>
+            <span id="calcRateOut" class="font-semibold text-champagne">$5.00/h</span>
+          </div>
+          <input id="calcRate" type="range" min="2" max="20" step="0.5" value="5" class="calc-range mt-3 w-full">
+        </div>
+      </div>
+    </div>
+
+    <div class="card self-start rounded-3xl p-8 lg:p-10">
+      <p class="text-xs uppercase tracking-[.25em] text-cream/50">Valor estimado al año</p>
+      <p id="calcYear" class="price mt-2 font-serif text-5xl text-champagne" data-usd="0"></p>
+      <p id="calcYearAlt" class="alt-price mt-1 text-sm text-cream/50" data-usd="0"></p>
+      <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-champagne/15 pt-6">
+        <div>
+          <dt class="text-[11px] uppercase tracking-wider text-cream/45">Valor mensual</dt>
+          <dd id="calcMonth" class="price mt-1 text-lg text-cream" data-usd="0"></dd>
+        </div>
+        <div>
+          <dt class="text-[11px] uppercase tracking-wider text-cream/45">Horas al año</dt>
+          <dd id="calcHoursYear" class="mt-1 text-lg text-cream">312 h</dd>
+        </div>
+        <div>
+          <dt class="text-[11px] uppercase tracking-wider text-cream/45">Inversión</dt>
+          <dd id="calcInvest" class="price mt-1 text-lg text-cream" data-usd="0"></dd>
+        </div>
+        <div>
+          <dt class="text-[11px] uppercase tracking-wider text-cream/45">Recuperación estimada</dt>
+          <dd id="calcPayback" class="mt-1 text-lg text-cream">—</dd>
+        </div>
+      </dl>
+      <p class="mt-6 text-xs leading-relaxed text-cream/40">Cálculo: horas semanales × 4,33 semanas al mes × tarifa por hora. Son cifras orientativas y no constituyen garantía de resultados.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ PIE DE PÁGINA (CONTACTO Y DÓNDE COMPRAR) ============ -->
+<footer id="contacto" class="scroll-mt-32 border-t border-champagne/15 bg-esmeralda/40">
+  <div class="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-3 lg:px-8">
+    <div>
+      <p class="font-serif text-3xl tracking-[.3em] text-champagne">NOVA</p>
+      <p class="mt-4 max-w-xs text-sm leading-relaxed text-cream/60">Máquinas de coser seleccionadas para costureras, diseñadoras y emprendedoras. Precios en USD y en bolívares con tasa oficial BCV.</p>
+    </div>
+    <div>
+      <h3 class="text-xs uppercase tracking-[.25em] text-champagne">Navegación</h3>
+      <ul class="mt-4 space-y-2 text-sm text-cream/70">
+        <li><a href="#top" class="hover:text-champagne">Destacados</a></li>
+        <li><a href="#catalogo" class="hover:text-champagne">Catálogo</a></li>
+        <li><a href="#calculadora" class="hover:text-champagne">Calculadora</a></li>
+        <li><a href="#contacto" class="hover:text-champagne">Contacto</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="text-xs uppercase tracking-[.25em] text-champagne">Contacto y Dónde Comprar</h3>
+      <p class="mt-4 text-sm text-cream/70 leading-relaxed">Visita nuestros puntos de venta autorizados o comunícate directamente con asesoría comercial.</p>
+      <button data-support="donde" class="ghost-btn mt-3 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold">
+        <i class="fa-solid fa-location-dot"></i> Ver dónde comprar
+      </button>
+      <a href="https://wa.me/584248901496" target="_blank" rel="noopener noreferrer" class="gold-btn mt-4 flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold">
+        <i class="fa-brands fa-whatsapp text-base"></i> +58 424-8901496
+      </a>
+    </div>
+  </div>
+  <div class="border-t border-champagne/10 py-6 text-center text-xs text-cream/40">© 2026 NOVA · Catálogo exclusivo · Precios referenciales a tasa BCV</div>
+</footer>
+
+<a href="https://wa.me/584248901496" target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp" class="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-2xl text-white shadow-2xl transition hover:scale-110">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<!-- ============ FICHA TÉCNICA (MODAL DE PRODUCTO) ============ -->
+<div id="productModal" class="overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-3 backdrop-blur-md sm:p-6" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+  <div class="modal-box relative max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-champagne/20 bg-bosque shadow-2xl scrollbar-thin">
+    <button data-close="product" class="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full border border-champagne/30 bg-esmeralda text-cream transition hover:bg-champagne hover:text-bosque" aria-label="Cerrar ficha">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <div class="grid lg:grid-cols-2">
+      <!-- Galería -->
+      <div class="bg-esmeralda/50 p-6 lg:p-8">
+        <div class="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-champagne/10 bg-bosque/70">
+          <img id="pmMain" alt="" class="h-full w-full object-contain p-8 transition-opacity duration-300">
+        </div>
+        <div id="pmThumbs" class="mt-4 grid grid-cols-3 gap-3"></div>
+      </div>
+
+      <!-- Información -->
+      <div class="p-6 lg:p-10">
+        <p id="pmCat" class="text-xs uppercase tracking-[.25em] text-champagne"></p>
+        <h2 id="pmTitle" class="mt-2 font-serif text-3xl sm:text-4xl"></h2>
+        <div class="mt-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <span id="pmPrice" class="price text-3xl font-semibold text-champagne" data-usd="0"></span>
+          <span id="pmAlt" class="alt-price text-sm text-cream/50" data-usd="0"></span>
+        </div>
+        <p id="pmDesc" class="mt-4 leading-relaxed text-cream/70"></p>
+
+        <div class="mt-6 grid gap-3 sm:grid-cols-3">
+          <button id="pmAdd" class="gold-btn rounded-full py-3.5 text-sm font-semibold sm:col-span-1"><i class="fa-solid fa-bag-shopping mr-2"></i>Añadir</button>
+          <button id="pmCompare" data-compare="0" class="cmp-toggle ghost-btn rounded-full py-3.5 text-sm transition"><i class="fa-solid fa-scale-balanced mr-2"></i>Comparar</button>
+          <button data-support="donde" class="ghost-btn rounded-full py-3.5 text-sm"><i class="fa-solid fa-location-dot mr-2"></i>Dónde comprar</button>
+        </div>
+
+        <div id="pmAccordions" class="mt-8 divide-y divide-champagne/15 border-y border-champagne/15"></div>
+      </div>
+    </div>
+
+    <section class="border-t border-champagne/15 p-6 lg:p-10">
+      <h3 class="font-serif text-2xl">También podría interesarte</h3>
+      <div id="pmRelated" class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ MODAL DE INFORMACIÓN (DÓNDE COMPRAR) ============ -->
+<div id="infoModal" class="overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-3 backdrop-blur-md sm:p-6" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+  <div class="modal-box relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-champagne/20 bg-bosque p-7 shadow-2xl scrollbar-thin sm:p-10">
+    <button data-close="info" class="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full border border-champagne/30 bg-esmeralda text-cream transition hover:bg-champagne hover:text-bosque" aria-label="Cerrar">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <h2 id="infoTitle" class="pr-12 font-serif text-3xl"></h2>
+    <div id="infoBody" class="mt-6 space-y-4 leading-relaxed text-cream/75"></div>
+  </div>
+</div>
+
+<!-- ============ VERIFICACIÓN ANTI-SPAM ============ -->
+<div id="captchaModal" class="overlay fixed inset-0 z-[90] flex items-center justify-center bg-black/65 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="capTitle">
+  <div class="modal-box w-full max-w-sm rounded-3xl border border-champagne/25 bg-bosque p-7 shadow-2xl">
+    <div class="flex items-center justify-between">
+      <h2 id="capTitle" class="font-serif text-2xl">Verificación</h2>
+      <button data-close="captcha" class="grid h-9 w-9 place-items-center rounded-full border border-champagne/30 text-cream transition hover:bg-champagne hover:text-bosque" aria-label="Cerrar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <p class="mt-2 text-sm text-cream/60">Para proteger tu pedido, resuelve esta suma sencilla antes de enviarlo por WhatsApp.</p>
+
+    <div class="mt-6 rounded-2xl border border-champagne/20 bg-esmeralda py-5 text-center">
+      <span id="capQuestion" class="font-serif text-3xl tracking-wide"></span>
+    </div>
+
+    <form id="captchaForm" class="mt-5 space-y-3" autocomplete="off">
+      <label for="capAnswer" class="text-sm text-cream/70">Tu respuesta</label>
+      <input id="capAnswer" type="text" inputmode="numeric" required class="w-full rounded-xl border border-champagne/25 bg-esmeralda/50 px-4 py-3 text-center text-lg focus:border-champagne focus:outline-none focus:ring-2 focus:ring-champagne/30">
+      <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+        <input id="hpField" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <p id="capError" class="hidden text-sm text-red-300">Respuesta incorrecta. Se generó una nueva suma.</p>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="capRefresh" class="ghost-btn flex-1 rounded-full py-3 text-sm">Nueva suma</button>
+        <button type="submit" class="gold-btn flex-1 rounded-full py-3 text-sm font-semibold">Verificar y enviar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ CARRITO / SELECCIÓN ============ -->
+<div id="cartOverlay" class="overlay fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"></div>
+<aside id="cartDrawer" class="drawer fixed right-0 top-0 z-[80] flex h-full w-full max-w-md flex-col border-l border-champagne/20 bg-bosque shadow-2xl" aria-label="Tu selección">
+  <div class="flex items-center justify-between border-b border-champagne/15 p-6">
+    <h2 class="font-serif text-2xl">Tu selección</h2>
+    <button data-close="cart" class="grid h-10 w-10 place-items-center rounded-full border border-champagne/30 text-cream transition hover:bg-champagne hover:text-bosque" aria-label="Cerrar selección">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <div id="cartItems" class="scrollbar-thin flex-1 space-y-4 overflow-y-auto px-6 py-5"></div>
+  <div class="space-y-4 border-t border-champagne/15 p-6">
+    <div class="flex items-end justify-between">
+      <span class="text-sm text-cream/60">Total estimado <span id="cartUnits" class="text-cream/40">(0 uds.)</span></span>
+      <div class="text-right">
+        <p id="cartTotal" class="price text-2xl font-semibold text-champagne" data-usd="0"></p>
+        <p id="cartTotalAlt" class="alt-price text-xs text-cream/50" data-usd="0"></p>
+      </div>
+    </div>
+    <button id="checkoutBtn" class="gold-btn w-full rounded-full py-4 font-semibold"><i class="fa-brands fa-whatsapp mr-2"></i>Solicitar pedido por WhatsApp</button>
+    <p class="text-center text-xs text-cream/40">Se requiere una verificación rápida antes de enviar.</p>
+  </div>
+</aside>
+
+<!-- ============ COMPARADOR ============ -->
+<div id="compareOverlay" class="overlay fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"></div>
+<aside id="compareDrawer" class="drawer fixed right-0 top-0 z-[80] flex h-full w-full max-w-2xl flex-col border-l border-champagne/20 bg-bosque shadow-2xl" aria-label="Comparador de máquinas">
+  <div class="flex items-center justify-between border-b border-champagne/15 p-6">
+    <div>
+      <p class="text-xs uppercase tracking-[.25em] text-champagne">Comparador</p>
+      <h2 class="mt-1 font-serif text-2xl">Compara hasta 2 modelos</h2>
+    </div>
+    <button data-close="compare" class="grid h-10 w-10 place-items-center rounded-full border border-champagne/30 text-cream transition hover:bg-champagne hover:text-bosque" aria-label="Cerrar comparador">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <div id="compareBody" class="scrollbar-thin flex-1 overflow-y-auto p-6"></div>
+  <div class="grid gap-3 border-t border-champagne/15 p-6 sm:grid-cols-2">
+    <button id="compareClear" class="ghost-btn rounded-full py-3.5 text-sm">Vaciar comparador</button>
+    <button id="compareWa" class="gold-btn rounded-full py-3.5 text-sm font-semibold" disabled><i class="fa-brands fa-whatsapp mr-2"></i>Consultar por WhatsApp</button>
+  </div>
+</aside>
+<button id="compareBar" class="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full border border-neon/50 bg-esmeralda px-4 py-3 text-sm font-semibold text-neon shadow-2xl transition hover:scale-105" aria-label="Abrir comparador">
+  <i class="fa-solid fa-scale-balanced"></i> Comparar (<span id="compareCount">0</span>)
+</button>
+
+<!-- ============ MENÚ MÓVIL ============ -->
+<div id="menuOverlay" class="overlay fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm lg:hidden"></div>
+<aside id="mobileMenu" class="drawer drawer-left fixed left-0 top-0 z-[80] flex h-full w-72 flex-col border-r border-champagne/20 bg-bosque p-6 shadow-2xl lg:hidden" aria-label="Menú">
+  <div class="flex items-center justify-between">
+    <span class="font-serif text-2xl tracking-[.3em] text-champagne">NOVA</span>
+    <button data-close="menu" class="grid h-10 w-10 place-items-center rounded-full border border-champagne/30 text-cream" aria-label="Cerrar menú"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <nav class="mt-10 flex flex-col gap-5 text-lg">
+    <a href="#top" data-nav class="hover:text-champagne">Destacados</a>
+    <a href="#catalogo" data-nav class="hover:text-champagne">Catálogo</a>
+    <a href="#calculadora" data-nav class="hover:text-champagne">Calculadora</a>
+    <a href="#contacto" data-nav class="hover:text-champagne">Contacto</a>
+  </nav>
+  <div class="neon-ring mt-auto rounded-2xl p-4 text-sm">
+    <p class="text-cream/60">Tasa oficial BCV</p>
+    <p class="bcv-rate neon-text mt-1 text-xl font-semibold">Bs. --</p>
+    <p class="bcv-status mt-1 text-xs text-cream/45">Consultando…</p>
+  </div>
+</aside>
+
+<!-- ============ NOTIFICACIONES ============ -->
+<div id="toast" class="pointer-events-none fixed bottom-24 left-1/2 z-[120] -translate-x-1/2 translate-y-6 rounded-full border border-champagne/40 bg-esmeralda px-5 py-3 text-center text-sm opacity-0 shadow-2xl transition-all duration-500" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+const WHATSAPP = '584248901496';
+const WHATSAPP_LABEL = '+58 424-8901496';
+const FALLBACK_RATE = 65.50;
+const RATE_URL = 'https://ve.dolarapi.com/v1/dolares/oficial';
+const RATE_REFRESH_MS = 10 * 60 * 1000;
+const CITIES = ['Caracas', 'Valencia', 'Maracaibo', 'Barquisimeto'];
+const WEEKS_PER_MONTH = 4.33;
+const MAX_COMPARE = 2;
+
+const CATS = { mecanica: 'Mecánica', computarizada: 'Computarizada', overlock: 'Overlock' };
+
+const CAT_DESC = {
+  mecanica: 'Ideal para iniciarte en la costura, con puntadas útiles y un manejo sencillo y confiable.',
+  computarizada: 'Selección digital de puntadas, pantalla LCD y ajustes precisos para proyectos exigentes.',
+  overlock: 'Acabados profesionales con hilos múltiples, perfectos para tejidos de punto y confección.'
+};
+
+const ACCESSORIES = {
+  mecanica: ['Pie prensatelas universal', 'Juego de 6 bobinas', 'Descosedor', 'Cepillo de limpieza', 'Juego de agujas (80/12 y 90/14)', 'Manual de instrucciones'],
+  computarizada: ['Pies prensatelas: universal, cierre y ojal', 'Juego de 8 bobinas', 'Mesa de extensión', 'Funda protectora rígida', 'Juego de agujas surtidas', 'Pedal de control', 'Cable de alimentación'],
+  overlock: ['Pie para overlock de 3 y 4 hilos', 'Juego de 4 conos de hilo', 'Descosedor', 'Cuchillo de corte de repuesto', 'Llave para cambio de agujas', 'Manual de instrucciones']
+};
+
+const APPLICATIONS = {
+  mecanica: ['Dobladillos y ruedos', 'Costuras rectas y zigzag', 'Botones y ojales', 'Remiendos y reparaciones', 'Telas livianas y medianas'],
+  computarizada: ['Quilting y patchwork', 'Bordes decorativos', 'Ojales automáticos', 'Telas gruesas, como mezclilla', 'Puntadas decorativas de alta definición'],
+  overlock: ['Costuras de tejido de punto', 'Acabado de bordes', 'Unión de telas elásticas', 'Dobladillos en prendas de confección', 'Costuras de seguridad de 3 y 4 hilos']
+};
+
+/* Etiquetas de uso: cada una agrupa modelos por id */
+const TAGS = {
+  ParaEmprender: { label: '#ParaEmprender', ids: [1, 9, 10, 11, 12, 14] },
+  AltaCostura:   { label: '#AltaCostura',   ids: [9, 10, 11, 13, 14] },
+  CosturaEnCasa: { label: '#CosturaEnCasa', ids: [2, 3, 4, 5, 6, 7, 8] },
+  Quilting:      { label: '#Quilting',      ids: [9, 11, 12] },
+  TejidoDePunto: { label: '#TejidoDePunto', ids: [13, 14, 15] }
+};
+
+const RAW = [
+  [1,  'NOVA Atelier 3505',        'mecanica',      229, '#C9A06E', 35,  850,  6.1, 1],
+  [2,  'NOVA Atelier 3205',        'mecanica',      199, '#8FA89B', 32,  850,  6.0, 0],
+  [3,  'NOVA Ligera 1505',         'mecanica',      149, '#B87333', 15,  750,  5.2, 0],
+  [4,  'NOVA Simple 3221',         'mecanica',      169, '#7FD8B0', 32,  800,  5.8, 0],
+  [5,  'NOVA Simple 2263',         'mecanica',      159, '#7C8FA3', 23,  800,  5.6, 0],
+  [6,  'NOVA Tradición 2250',      'mecanica',      179, '#E2CBA8', 50,  750,  6.4, 0],
+  [7,  'NOVA Tradición 2273',      'mecanica',      189, '#9B6B8E', 27,  750,  6.3, 0],
+  [8,  'NOVA Facilita Pro 4423',   'mecanica',      299, '#8E8E8E', 42,  800,  8.9, 0],
+  [9,  'NOVA Compu 7400',          'computarizada', 449, '#C9A06E', 200, 850,  7.2, 1],
+  [10, 'NOVA Compu 8500 Pro',      'computarizada', 699, '#39FFA0', 400, 1000, 8.4, 0],
+  [11, 'NOVA Compu Bordado 9000',  'computarizada', 999, '#B87333', 300, 1000, 10.5, 1],
+  [12, 'NOVA Compu Quilt 6800',    'computarizada', 589, '#8FA89B', 250, 850,  7.9, 0],
+  [13, 'NOVA Overlock 4D',         'overlock',      349, '#7C8FA3', 4,   1300, 6.8, 0],
+  [14, 'NOVA Overlock 5 Hilos',    'overlock',      419, '#C9A06E', 5,   1300, 7.5, 1],
+  [15, 'NOVA Overlock Compacta 3T','overlock',      279, '#7FD8B0', 3,   1100, 5.1, 0]
+];
+
+const PRODUCTS = RAW.map(([id, name, cat, price, color, puntadas, speed, kg, feat]) => ({
+  id, name, cat, price, color, puntadas, speed, kg, feat: !!feat
+}));
+const byId = id => PRODUCTS.find(p => p.id === id);
+
+/* Persistencia local (preferencias del usuario) */
+const store = {
+  get(key, fallback) {
+    try {
+      const v = localStorage.getItem('nova_' + key);
+      return v === null ? fallback : JSON.parse(v);
+    } catch (err) {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try { localStorage.setItem('nova_' + key, JSON.stringify(value)); } catch (err) { /* almacenamiento no disponible */ }
+  }
+};
+
+const VIEWS = [
+  { key: 'frente',  label: 'Frente' },
+  { key: 'lado',    label: 'Lateral' },
+  { key: 'detalle', label: 'Detalle' }
+];
+
+function specsOf(p) {
+  const over = p.cat === 'overlock';
+  return [
+    ['Tipo', CATS[p.cat]],
+    ['Puntadas', over ? 'Overlock de 3, 4 y 5 hilos' : `${p.puntadas} tipos`],
+    ['Velocidad máxima', `${p.speed} ppm`],
+    ['Motor', p.cat === 'computarizada' ? '110 W' : over ? '90 W' : '60 W'],
+    ['Ojal', over ? 'No aplica' : p.cat === 'computarizada' ? 'Automático con sensor' : 'Automático de 1 paso'],
+    ['Iluminación', 'LED frontal'],
+    ['Peso', `${p.kg} kg`],
+    ['Garantía', '2 años']
+  ];
+}
+
+function longDesc(p) {
+  const extra = p.cat === 'overlock' ? '' : ` con ${p.puntadas} puntadas`;
+  return `${CAT_DESC[p.cat]} Modelo${extra} y hasta ${p.speed} ppm de velocidad máxima.`;
+}
+
+const VIEW_TRANSFORM = {
+  frente:  'translate(0 0)',
+  lado:    'translate(400 0) scale(-1 1)',
+  detalle: 'translate(-218 -290) scale(2.2)'
+};
+
+function machineImg(p, view = 'frente') {
+  const c = p.color;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+    <ellipse cx="200" cy="262" rx="150" ry="9" fill="#000" opacity=".3"/>
+    <g transform="${VIEW_TRANSFORM[view]}">
+      <rect x="40" y="206" width="320" height="46" rx="12" fill="#D9D2C3"/>
+      <rect x="60" y="92" width="280" height="122" rx="26" fill="#F5F1E8" stroke="#CFC6B4" stroke-width="1.5"/>
+      <rect x="296" y="50" width="54" height="170" rx="16" fill="#F5F1E8" stroke="#CFC6B4" stroke-width="1.5"/>
+      <path d="M140 150 Q200 98 262 150" fill="none" stroke="${c}" stroke-width="16" stroke-linecap="round"/>
+      <rect x="186" y="170" width="10" height="36" rx="3" fill="#8B8478"/>
+      <rect x="176" y="204" width="30" height="8" rx="3" fill="#8B8478"/>
+      <circle cx="348" cy="136" r="26" fill="${c}"/>
+      <circle cx="348" cy="136" r="10" fill="#1F2A24"/>
+      <circle cx="112" cy="112" r="14" fill="${c}" opacity=".85"/>
+      <rect x="98" y="132" width="28" height="10" rx="4" fill="#CFC6B4"/>
+      <line x1="120" y1="60" x2="120" y2="92" stroke="#CFC6B4" stroke-width="6" stroke-linecap="round"/>
+    </g>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+/* ---------- Moneda y tasa BCV ---------- */
+const storedCur = store.get('moneda', 'USD');
+let currency = storedCur === 'VES' ? 'VES' : 'USD';
+let rate = FALLBACK_RATE;
+let rateLive = false;
+let rateReady = false;
+
+const nf = (n, locale) => n.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtUSD = usd => '$' + nf(usd, 'en-US');
+const fmtVES = usd => (rateReady ? 'Bs. ' + nf(usd * rate, 'es-VE') : 'Bs. …');
+const fmt = (usd, cur = currency) => (cur === 'USD' ? fmtUSD(usd) : fmtVES(usd));
+const otherCur = () => (currency === 'USD' ? 'VES' : 'USD');
+const el = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+
+function updatePrices() {
+  $$('.price[data-usd]').forEach(n => { n.textContent = fmt(+n.dataset.usd); });
+  $$('.alt-price[data-usd]').forEach(n => { n.textContent = '≈ ' + fmt(+n.dataset.usd, otherCur()); });
+  el('currencyBtn').textContent = currency === 'USD' ? 'USD $' : 'VES Bs.';
+}
+
+function setRateText() {
+  const t = new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+  $$('.bcv-rate').forEach(n => { n.textContent = 'Bs. ' + nf(rate, 'es-VE'); });
+  $$('.bcv-status').forEach(n => { n.textContent = rateLive ? `· actualizada ${t}` : `· referencial (${t})`; });
+}
+
+async function fetchRate() {
+  try {
+    const res = await fetch(RATE_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const v = Number(data.promedio);
+    if (!Number.isFinite(v) || v <= 0) throw new Error('Tasa inválida');
+    rate = v;
+    rateLive = true;
+  } catch (err) {
+    rateLive = false;
+  }
+  rateReady = true;
+  setRateText();
+  updatePrices();
+  renderCart();
+  updateCalc();
+}
+
+/* ---------- Catálogo, filtros y etiquetas ---------- */
+const cmpClass = on => on
+  ? ['bg-neon', 'text-bosque', 'border-neon']
+  : ['bg-bosque/80', 'text-cream/80', 'border-champagne/30'];
+
+function cardHTML(p) {
+  const on = compare.includes(p.id);
+  return `
+  <article role="button" tabindex="0" data-open="${p.id}" class="card group cursor-pointer rounded-3xl p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-champagne sm:p-4">
+    <div class="relative aspect-[4/5] overflow-hidden rounded-2xl bg-bosque/70">
+      <img src="${machineImg(p)}" alt="${p.name}" loading="lazy" class="h-full w-full object-contain p-4 transition duration-700 group-hover:scale-105">
+      <button type="button" data-compare="${p.id}" aria-pressed="${on}" class="cmp-toggle absolute right-2 top-2 z-10 rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${cmpClass(on).join(' ')}">${on ? '✓ En comparación' : '+ Comparar'}</button>
+    </div>
+    <div class="mt-4 px-1 pb-1">
+      <h3 class="font-medium leading-snug text-cream">${p.name}</h3>
+      <div class="mt-2 flex flex-wrap items-baseline justify-between gap-x-2">
+        <span class="price text-lg font-semibold text-champagne" data-usd="${p.price}"></span>
+        <span class="alt-price text-xs text-cream/50" data-usd="${p.price}"></span>
+      </div>
+    </div>
+  </article>`;
+}
+
+const state = { cat: 'all', tag: 'all', q: '', sort: 'default' };
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  let list = PRODUCTS.filter(p =>
+    (state.cat === 'all' || p.cat === state.cat) &&
+    (state.tag === 'all' || TAGS[state.tag].ids.includes(p.id)) &&
+    (!q || p.name.toLowerCase().includes(q) || CATS[p.cat].toLowerCase().includes(q))
+  );
+  if (state.sort === 'asc')  list = [...list].sort((a, b) => a.price - b.price);
+  if (state.sort === 'desc') list = [...list].sort((a, b) => b.price - a.price);
+  if (state.sort === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  return list;
+}
+
+function renderGrid() {
+  const list = filtered();
+  el('grid').innerHTML = list.map(cardHTML).join('');
+  el('resultCount').textContent = list.length;
+  el('emptyState').classList.toggle('hidden', list.length > 0);
+  updatePrices();
+}
+
+const paintBtn = (b, on) => {
+  b.classList.toggle('bg-champagne', on);
+  b.classList.toggle('text-bosque', on);
+  b.classList.toggle('border-champagne', on);
+  b.classList.toggle('border-champagne/25', !on);
+  b.classList.toggle('text-cream/75', !on);
+};
+
+function paintFilters() {
+  $$('[data-cat]').forEach(b => paintBtn(b, b.dataset.cat === state.cat));
+  $$('[data-tag]').forEach(b => paintBtn(b, b.dataset.tag === state.tag));
+}
+
+function buildTags() {
+  const items = [['all', 'Todas'], ...Object.entries(TAGS).map(([k, v]) => [k, v.label])];
+  el('tags').innerHTML = items.map(([k, label]) =>
+    `<button data-tag="${k}" class="shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-xs tracking-wide transition">${label}</button>`
+  ).join('');
+}
+
+function setFilter(key, value) {
+  state[key] = value;
+  store.set('filtros', { cat: state.cat, tag: state.tag });
+  paintFilters();
+  renderGrid();
+}
+
+/* ---------- Carrusel destacado ---------- */
+const FEATURED = PRODUCTS.filter(p => p.feat);
+let slide = 0;
+let autoTimer = null;
+
+function slideHTML(p) {
+  return `
+  <article class="slide absolute inset-0 grid items-center gap-8 opacity-0 translate-x-10 z-0 pointer-events-none lg:grid-cols-2" aria-hidden="true">
+    <div class="order-2 space-y-5 lg:order-1">
+      <span class="inline-block rounded-full border border-champagne/40 px-3 py-1 text-xs tracking-widest text-champagne">${CATS[p.cat]}</span>
+      <h2 class="font-serif text-4xl leading-tight sm:text-5xl">${p.name}</h2>
+      <p class="max-w-md leading-relaxed text-cream/70">${CAT_DESC[p.cat]}</p>
+      <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <span class="price text-3xl font-semibold text-champagne" data-usd="${p.price}"></span>
+        <span class="alt-price text-sm text-cream/50" data-usd="${p.price}"></span>
+      </div>
+      <div class="flex flex-wrap gap-3 pt-2">
+        <button data-open="${p.id}" class="gold-btn rounded-full px-6 py-3 text-sm font-semibold"><i class="fa-solid fa-circle-info mr-2"></i>Ver ficha técnica</button>
+        <button data-add="${p.id}" class="ghost-btn rounded-full px-6 py-3 text-sm"><i class="fa-solid fa-plus mr-2"></i>Añadir a selección</button>
+      </div>
+    </div>
+    <div class="order-1 flex justify-center lg:order-2">
+      <div class="relative aspect-[4/5] w-full max-w-[380px] overflow-hidden rounded-[2.5rem] border border-champagne/20 bg-esmeralda shadow-2xl">
+        <img src="${machineImg(p)}" alt="${p.name}" class="h-full w-full object-contain p-10">
+        <span class="absolute left-5 top-5 rounded-full bg-bosque/70 px-3 py-1 text-xs text-champagne">Destacado</span>
+      </div>
+    </div>
+  </article>`;
+}
+
+function buildCarousel() {
+  el('slides').innerHTML = FEATURED.map(slideHTML).join('');
+  el('dots').innerHTML = FEATURED.map((p, i) =>
+    `<button data-dot="${i}" aria-label="Ir a ${p.name}" class="h-2 w-2 rounded-full bg-champagne/30 transition-all duration-300"></button>`
+  ).join('');
+  goTo(0);
+  startAuto();
+}
+
+function goTo(i) {
+  const n = FEATURED.length;
+  slide = (i + n) % n;
+  $$('#slides .slide').forEach((s, k) => {
+    const on = k === slide;
+    s.classList.toggle('opacity-100', on);
+    s.classList.toggle('opacity-0', !on);
+    s.classList.toggle('translate-x-0', on);
+    s.classList.toggle('translate-x-10', !on);
+    s.classList.toggle('z-10', on);
+    s.classList.toggle('z-0', !on);
+    s.classList.toggle('pointer-events-none', !on);
+    s.inert = !on;
+    s.setAttribute('aria-hidden', String(!on));
+  });
+  $$('#dots button').forEach((d, k) => {
+    const on = k === slide;
+    d.classList.toggle('w-8', on);
+    d.classList.toggle('bg-champagne', on);
+    d.classList.toggle('w-2', !on);
+    d.classList.toggle('bg-champagne/30', !on);
+  });
+  el('slideCounter').textContent = `${String(slide + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`;
+  updatePrices();
+}
+
+function startAuto() { stopAuto(); autoTimer = setInterval(() => goTo(slide + 1), 6500); }
+function stopAuto()  { clearInterval(autoTimer); }
+
+/* ---------- Grupos de overlays ---------- */
+const GROUPS = {
+  product: ['productModal'],
+  info: ['infoModal'],
+  captcha: ['captchaModal'],
+  cart: ['cartOverlay', 'cartDrawer'],
+  compare: ['compareOverlay', 'compareDrawer'],
+  menu: ['menuOverlay', 'mobileMenu']
+};
+
+function setGroup(g, on) {
+  GROUPS[g].forEach(id => el(id).classList.toggle('open', on));
+  document.body.classList.toggle('no-scroll', document.querySelector('.overlay.open, .drawer.open') !== null);
+  if (g === 'menu') el('menuBtn').setAttribute('aria-expanded', String(on));
+}
+
+/* ---------- Ficha de producto ---------- */
+let current = null;
+
+function openProduct(id) {
+  const p = byId(id);
+  if (!p) return;
+  current = p;
+  el('pmCat').textContent = CATS[p.cat];
+  el('pmTitle').textContent = p.name;
+  el('pmDesc').textContent = longDesc(p);
+  el('pmPrice').dataset.usd = p.price;
+  el('pmAlt').dataset.usd = p.price;
+  el('pmCompare').dataset.compare = p.id;
+  el('pmThumbs').innerHTML = VIEWS.map(v => `
+    <button data-view="${v.key}" class="thumb overflow-hidden rounded-xl border border-champagne/15 bg-bosque/70 transition hover:border-champagne/60">
+      <img src="${machineImg(p, v.key)}" alt="Vista ${v.label}" class="aspect-square w-full object-contain p-2">
+      <span class="block py-1.5 text-[11px] uppercase tracking-wider text-cream/60">${v.label}</span>
+    </button>`).join('');
+  setView('frente');
+  el('pmAccordions').innerHTML = accordionsHTML(p);
+  el('pmRelated').innerHTML = relatedOf(p).map(cardHTML).join('');
+  el('productModal').querySelector('.modal-box').scrollTop = 0;
+  setGroup('product', true);
+  paintCompare();
+  updatePrices();
+}
+
+function setView(key) {
+  if (!current) return;
+  const main = el('pmMain');
+  main.style.opacity = '0';
+  setTimeout(() => {
+    main.src = machineImg(current, key);
+    main.alt = current.name;
+    main.style.opacity = '1';
+  }, 150);
+  $$('#pmThumbs .thumb').forEach(t => {
+    const on = t.dataset.view === key;
+    t.classList.toggle('ring-2', on);
+    t.classList.toggle('ring-champagne', on);
+  });
+}
+
+function accordionsHTML(p) {
+  const section = (title, icon, body, open = false) => `
+    <details class="group py-4" ${open ? 'open' : ''}>
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold uppercase tracking-[.15em] text-cream/90 transition hover:text-champagne">
+        <span class="flex items-center gap-3"><i class="fa-solid ${icon} text-champagne"></i>${title}</span>
+        <i class="fa-solid fa-chevron-down chevron text-xs text-champagne/70"></i>
+      </summary>
+      <div class="mt-4 text-sm leading-relaxed text-cream/70">${body}</div>
+    </details>`;
+
+  const specs = `<dl class="grid grid-cols-2 gap-x-6 gap-y-4">${specsOf(p).map(([k, v]) =>
+    `<div><dt class="text-[11px] uppercase tracking-wider text-cream/45">${k}</dt><dd class="mt-0.5 text-cream">${v}</dd></div>`
+  ).join('')}</dl>`;
+
+  const list = items => `<ul class="space-y-2">${items.map(i =>
+    `<li class="flex gap-3"><i class="fa-solid fa-check mt-1 text-xs text-champagne"></i><span>${i}</span></li>`
+  ).join('')}</ul>`;
+
+  const manuals = `<div class="grid gap-3 sm:grid-cols-2">
+      <button data-pdf="ficha" class="gold-btn rounded-full py-3 text-sm font-semibold"><i class="fa-solid fa-file-arrow-down mr-2"></i>Descargar ficha técnica (PDF)</button>
+    </div>`;
+
+  return section('Características y motor', 'fa-gears', specs, true)
+    + section('Accesorios incluidos', 'fa-box-open', list(ACCESSORIES[p.cat]))
+    + section('Aplicaciones de puntadas', 'fa-wand-magic-sparkles', list(APPLICATIONS[p.cat]))
+    + section('Ficha técnica', 'fa-file-lines', manuals);
+}
+
+function relatedOf(p) {
+  const same = PRODUCTS.filter(x => x.id !== p.id && x.cat === p.cat);
+  const others = PRODUCTS.filter(x => x.id !== p.id && x.cat !== p.cat);
+  return [...same, ...others].slice(0, 4);
+}
+
+/* ---------- Comparador ---------- */
+let compare = (() => {
+  const saved = store.get('comparar', []);
+  return Array.isArray(saved) ? saved.filter(id => byId(id)).slice(0, MAX_COMPARE) : [];
+})();
+
+function toggleCompare(id) {
+  if (!byId(id)) return;
+  if (compare.includes(id)) {
+    compare = compare.filter(x => x !== id);
+  } else if (compare.length >= MAX_COMPARE) {
+    compare = [compare[1], id];
+    toast('Comparador lleno: reemplazamos el modelo más antiguo.');
+  } else {
+    compare = [...compare, id];
+    toast(`${byId(id).name} añadida al comparador`);
+  }
+  store.set('comparar', compare);
+  paintCompare();
+  renderCompare();
+}
+
+function paintCompare() {
+  $$('.cmp-toggle').forEach(b => {
+    const on = compare.includes(+b.dataset.compare);
+    b.textContent = on ? '✓ En comparación' : '+ Comparar';
+    b.setAttribute('aria-pressed', String(on));
+    cmpClass(true).forEach(c => b.classList.toggle(c, on));
+    cmpClass(false).forEach(c => b.classList.toggle(c, !on));
+  });
+  el('compareBar').classList.toggle('hidden', compare.length === 0);
+  el('compareCount').textContent = compare.length;
+  el('compareWa').disabled = compare.length < MAX_COMPARE;
+}
+
+function renderCompare() {
+  const items = compare.map(byId);
+  const body = el('compareBody');
+
+  if (!items.length) {
+    body.innerHTML = `
+      <div class="flex h-full flex-col items-center justify-center py-16 text-center text-cream/50">
+        <i class="fa-solid fa-scale-balanced mb-4 text-4xl text-champagne/50"></i>
+        <p>Aún no has elegido modelos.</p>
+        <p class="mt-1 text-sm">Pulsa «Comparar» en hasta dos máquinas.</p>
+      </div>`;
+    updatePrices();
+    return;
+  }
+
+  const head = [0, 1].map(i => {
+    const p = items[i];
+    return p
+      ? `<div class="rounded-2xl border border-champagne/15 bg-esmeralda/40 p-3 text-center">
+           <div class="flex h-28 items-center justify-center rounded-xl bg-bosque/70">
+             <img src="${machineImg(p)}" alt="${p.name}" class="h-full w-full object-contain p-2">
+           </div>
+           <h4 class="mt-3 text-sm font-medium leading-snug">${p.name}</h4>
+           <p class="price mt-1 text-champagne" data-usd="${p.price}"></p>
+           <button data-compare="${p.id}" class="mt-2 text-xs text-cream/50 transition hover:text-red-300"><i class="fa-solid fa-xmark mr-1"></i>Quitar</button>
+         </div>`
+      : `<div class="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-champagne/25 p-4 text-center text-sm text-cream/45">Elige un segundo modelo</div>`;
+  }).join('');
+
+  const base = specsOf(items[0]);
+  const rowsHTML = base.map(([k], i) => {
+    const a = specsOf(items[0])[i][1];
+    const b = items[1] ? specsOf(items[1])[i][1] : '—';
+    const diff = items[1] && a !== b;
+    const tone = diff ? 'text-champagne' : 'text-cream';
+    return `
+      <div class="grid grid-cols-[90px_1fr_1fr] gap-3 border-b border-champagne/10 py-3 text-sm">
+        <span class="text-[11px] uppercase tracking-wider text-cream/45">${k}</span>
+        <span class="${tone}">${a}</span>
+        <span class="${tone}">${b}</span>
+      </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="grid grid-cols-[90px_1fr_1fr] gap-3">
+      <span></span>${head}
+    </div>
+    <div class="mt-6">${rowsHTML}</div>
+    <p class="mt-4 text-xs text-cream/45">Las diferencias aparecen resaltadas en champagne.</p>`;
+  updatePrices();
+}
+
+function compareWa() {
+  if (compare.length < MAX_COMPARE) return;
+  const [a, b] = compare.map(byId);
+  const msg = [
+    '*COMPARACIÓN · NOVA*',
+    '',
+    `1. ${a.name} · ${fmtUSD(a.price)} · ${fmtVES(a.price)}`,
+    `2. ${b.name} · ${fmtUSD(b.price)} · ${fmtVES(b.price)}`,
+    '',
+    'Quisiera asesoría para elegir entre ambos modelos. ¡Gracias!'
+  ].join('\n');
+  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+}
+
+/* ---------- Calculadora de rendimiento ---------- */
+function buildCalcOptions() {
+  el('calcModel').innerHTML = PRODUCTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  el('calcModel').value = '9';
+}
+
+function updateCalc() {
+  const p = byId(+el('calcModel').value) || PRODUCTS[0];
+  const h = +el('calcHours').value;
+  const r = +el('calcRate').value;
+  const monthly = h * WEEKS_PER_MONTH * r;
+  const yearly = monthly * 12;
+  const months = monthly > 0 ? p.price / monthly : 0;
+
+  el('calcHoursOut').textContent = `${h} h`;
+  el('calcRateOut').textContent = `$${nf(r, 'en-US')}/h`;
+  el('calcYear').dataset.usd = yearly;
+  el('calcYearAlt').dataset.usd = yearly;
+  el('calcMonth').dataset.usd = monthly;
+  el('calcInvest').dataset.usd = p.price;
+  el('calcHoursYear').textContent = `${Math.round(h * 52).toLocaleString('es-VE')} h`;
+  el('calcPayback').textContent = `${months.toLocaleString('es-VE', { maximumFractionDigits: 1 })} meses`;
+  updatePrices();
+}
+
+/* ---------- Carrito y pedido ---------- */
+let cart = [];
+
+const cartUnits = () => cart.reduce((s, i) => s + i.qty, 0);
+const cartTotalUSD = () => cart.reduce((s, i) => s + byId(i.id).price * i.qty, 0);
+
+function bump() {
+  const b = el('cartCount');
+  b.style.transform = 'scale(1.5)';
+  setTimeout(() => { b.style.transform = ''; }, 220);
+}
+
+function addToCart(id, qty = 1) {
+  const p = byId(id);
+  if (!p) return;
+  const line = cart.find(i => i.id === id);
+  if (line) line.qty += qty; else cart.push({ id, qty });
+  renderCart();
+  bump();
+  toast(`${p.name} añadida a tu selección`);
+}
+
+function changeQty(id, delta) {
+  const line = cart.find(i => i.id === id);
+  if (!line) return;
+  line.qty += delta;
+  if (line.qty <= 0) cart = cart.filter(i => i.id !== id);
+  renderCart();
+}
+
+function removeItem(id) {
+  cart = cart.filter(i => i.id !== id);
+  renderCart();
+}
+
+function renderCart() {
+  const n = cartUnits();
+  const total = cartTotalUSD();
+  el('cartCount').textContent = n;
+  el('cartUnits').textContent = `(${n} ${n === 1 ? 'ud.' : 'uds.'})`;
+  el('checkoutBtn').disabled = n === 0;
+
+  if (!cart.length) {
+    el('cartItems').innerHTML = `
+      <div class="flex h-full flex-col items-center justify-center py-16 text-center text-cream/50">
+        <i class="fa-solid fa-bag-shopping mb-4 text-4xl text-champagne/50"></i>
+        <p>Tu selección está vacía.</p>
+        <p class="mt-1 text-sm">Explora el catálogo y añade tus máquinas favoritas.</p>
+      </div>`;
+  } else {
+    el('cartItems').innerHTML = cart.map(i => {
+      const p = byId(i.id);
+      return `
+      <div class="flex gap-4 rounded-2xl border border-champagne/15 bg-esmeralda/40 p-3">
+        <div class="flex h-24 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-bosque/70">
+          <img src="${machineImg(p)}" alt="${p.name}" class="h-full w-full object-contain p-1">
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-[11px] uppercase tracking-wider text-cream/45">${CATS[p.cat]}</p>
+          <h4 class="truncate font-medium">${p.name}</h4>
+          <p class="price mt-1 text-sm text-champagne" data-usd="${p.price * i.qty}"></p>
+          <div class="mt-2 flex items-center justify-between">
+            <div class="inline-flex items-center rounded-full border border-champagne/25">
+              <button data-qty="-1" data-id="${p.id}" class="grid h-8 w-8 place-items-center text-cream/80 hover:text-champagne" aria-label="Disminuir"><i class="fa-solid fa-minus text-xs"></i></button>
+              <span class="w-8 text-center text-sm">${i.qty}</span>
+              <button data-qty="1" data-id="${p.id}" class="grid h-8 w-8 place-items-center text-cream/80 hover:text-champagne" aria-label="Aumentar"><i class="fa-solid fa-plus text-xs"></i></button>
+            </div>
+            <button data-remove="${p.id}" class="text-xs text-cream/50 transition hover:text-red-300"><i class="fa-regular fa-trash-can mr-1"></i>Eliminar</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  el('cartTotal').dataset.usd = total;
+  el('cartTotalAlt').dataset.usd = total;
+  updatePrices();
+}
+
+let capSum = 0;
+
+function newChallenge() {
+  const a = 2 + Math.floor(Math.random() * 18);
+  const b = 2 + Math.floor(Math.random() * 18);
+  capSum = a + b;
+  el('capQuestion').textContent = `${a} + ${b} = ?`;
+  el('capAnswer').value = '';
+  el('capError').classList.add('hidden');
+}
+
+function startCheckout() {
+  if (!cart.length) return toast('Añade máquinas a tu selección primero.');
+  newChallenge();
+  setGroup('captcha', true);
+  setTimeout(() => el('capAnswer').focus(), 350);
+}
+
+function buildMessage() {
+  const lines = cart.map((i, k) => {
+    const p = byId(i.id);
+    return `${k + 1}. ${p.name} (${CATS[p.cat]}) x${i.qty}: ${fmtUSD(p.price * i.qty)} · ${fmtVES(p.price * i.qty)}`;
+  });
+  const total = cartTotalUSD();
+  return [
+    '*NUEVO PEDIDO · NOVA*',
+    '',
+    ...lines,
+    '',
+    `*Total estimado:* ${fmtUSD(total)} · ${fmtVES(total)}`,
+    `*Tasa BCV:* Bs. ${nf(rate, 'es-VE')}${rateLive ? '' : ' (referencial)'}`,
+    '',
+    'Quedo atento para confirmar disponibilidad y forma de pago. ¡Gracias!'
+  ].join('\n');
+}
+
+function sendOrder() {
+  const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(buildMessage())}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+  toast('Pedido listo. Te llevamos a WhatsApp.');
+}
+
+/* ---------- Información de soporte ---------- */
+function showInfo(title, html) {
+  el('infoTitle').textContent = title;
+  el('infoBody').innerHTML = html;
+  setGroup('info', true);
+  el('infoModal').querySelector('.modal-box').scrollTop = 0;
+}
+
+function handleSupport(key) {
+  const cityList = intro => `<p>${intro}</p><ul class="space-y-3">${CITIES.map(c => `
+      <li class="flex items-center justify-between gap-4 rounded-2xl border border-champagne/15 bg-esmeralda/40 px-5 py-4">
+        <span class="font-medium text-cream">${c}</span>
+        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('máquinas de coser ' + c)}" target="_blank" rel="noopener noreferrer" class="text-sm text-champagne hover:underline">Ver en el mapa <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
+      </li>`).join('')}</ul>`;
+
+  if (key === 'donde') {
+    return showInfo('Dónde comprar', cityList('Consulta disponibilidad en nuestros puntos de venta o compra directamente por WhatsApp.'));
+  }
+}
+
+/* ---------- Generación de PDF (ficha técnica) ---------- */
+const RGB = {
+  bosque: [14, 26, 20], esmeralda: [22, 51, 38], champagne: [201, 160, 110],
+  cream: [239, 233, 223], text: [40, 40, 40], muted: [120, 120, 120], light: [245, 241, 232]
+};
+const slug = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+const jsPDFCtor = () => (window.jspdf && window.jspdf.jsPDF) || null;
+
+function pdfPageBand(doc, h, label) {
+  const W = doc.internal.pageSize.getWidth();
+  doc.setFillColor(...RGB.bosque);
+  doc.rect(0, 0, W, h, 'F');
+  doc.setFont('times', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(...RGB.champagne);
+  doc.text('NOVA', 15, h / 2 + 2);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...RGB.cream);
+  doc.text(label, W - 15, h / 2 + 2, { align: 'right' });
+}
+
+function pdfHeader(doc, title, subtitle) {
+  const W = doc.internal.pageSize.getWidth();
+  doc.setFillColor(...RGB.bosque);
+  doc.rect(0, 0, W, 40, 'F');
+  doc.setFillColor(...RGB.champagne);
+  doc.rect(0, 40, W, 1.2, 'F');
+  doc.setFont('times', 'bold');
+  doc.setFontSize(28);
+  doc.setTextColor(...RGB.champagne);
+  doc.text('NOVA', 15, 22);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...RGB.cream);
+  doc.text('MÁQUINAS DE COSER · CATÁLOGO EXCLUSIVO', 15, 30);
+  doc.text(`Emitido: ${new Date().toLocaleDateString('es-VE')}`, W - 15, 22, { align: 'right' });
+  doc.text(`Tasa BCV: Bs. ${nf(rate, 'es-VE')}${rateLive ? '' : ' (referencial)'}`, W - 15, 30, { align: 'right' });
+  doc.setFont('times', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(...RGB.bosque);
+  doc.text(title, 15, 60);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(...RGB.muted);
+  doc.text(subtitle, 15, 67);
+  return 80;
+}
+
+function need(doc, y, h) {
+  if (y + h <= 272) return y;
+  doc.addPage();
+  pdfPageBand(doc, 14, 'Documento NOVA');
+  return 26;
+}
+
+function sectionTitle(doc, y, text) {
+  y = need(doc, y, 16);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(...RGB.esmeralda);
+  doc.text(text.toUpperCase(), 15, y);
+  doc.setDrawColor(...RGB.champagne);
+  doc.setLineWidth(0.4);
+  doc.line(15, y + 2, 195, y + 2);
+  return y + 9;
+}
+
+function kvRows(doc, rows, y) {
+  rows.forEach(([k, v], i) => {
+    y = need(doc, y, 8);
+    if (i % 2 === 0) {
+      doc.setFillColor(...RGB.light);
+      doc.rect(15, y - 5, 180, 7.5, 'F');
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...RGB.text);
+    doc.text(k, 19, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(v), 80, y);
+    y += 7.5;
+  });
+  return y + 4;
+}
+
+function bullets(doc, items, y, numbered = false) {
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(...RGB.text);
+  items.forEach((item, idx) => {
+    const lines = doc.splitTextToSize(item, 160);
+    y = need(doc, y, lines.length * 5 + 2);
+    if (numbered) {
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${idx + 1}.`, 17, y);
+      doc.setFont('helvetica', 'normal');
+    } else {
+      doc.setFillColor(...RGB.champagne);
+      doc.circle(19, y - 1.3, 0.9, 'F');
+    }
+    lines.forEach((ln, j) => doc.text(ln, 23, y + j * 5));
+    y += lines.length * 5 + 2;
+  });
+  return y + 3;
+}
+
+function paragraph(doc, text, y) {
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(...RGB.text);
+  doc.splitTextToSize(text, 180).forEach(ln => {
+    y = need(doc, y, 5.5);
+    doc.text(ln, 15, y);
+    y += 5.5;
+  });
+  return y + 4;
+}
+
+function pdfFooter(doc) {
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const total = doc.getNumberOfPages();
+  for (let i = 1; i <= total; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...RGB.champagne);
+    doc.setLineWidth(0.3);
+    doc.line(15, H - 16, W - 15, H - 16);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...RGB.muted);
+    doc.text(`NOVA · WhatsApp ${WHATSAPP_LABEL} · Precios referenciales en USD y Bs. (BCV)`, 15, H - 10);
+    doc.text(`Página ${i} de ${total}`, W - 15, H - 10, { align: 'right' });
+  }
+}
+
+function makeFichaPDF(p) {
+  const JsPDF = jsPDFCtor();
+  if (!JsPDF) return toast('El generador de PDF no está disponible. Revisa tu conexión.');
+  const doc = new JsPDF({ unit: 'mm', format: 'a4' });
+
+  let y = pdfHeader(doc, 'Ficha técnica', `${p.name} · ${CATS[p.cat]}`);
+
+  y = need(doc, y, 30);
+  doc.setFillColor(...RGB.light);
+  doc.roundedRect(15, y, 180, 22, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...RGB.muted);
+  doc.text('PRECIO REFERENCIAL', 20, y + 8);
+  doc.setFontSize(16);
+  doc.setTextColor(...RGB.bosque);
+  doc.text(fmtUSD(p.price), 20, y + 17);
+  doc.text(fmtVES(p.price), 190, y + 17, { align: 'right' });
+  y += 32;
+
+  y = sectionTitle(doc, y, 'Características y motor');
+  y = kvRows(doc, specsOf(p), y);
+  y = sectionTitle(doc, y, 'Accesorios incluidos');
+  y = bullets(doc, ACCESSORIES[p.cat], y);
+  y = sectionTitle(doc, y, 'Aplicaciones de puntadas');
+  y = bullets(doc, APPLICATIONS[p.cat], y);
+  y = sectionTitle(doc, y, 'Descripción');
+  paragraph(doc, longDesc(p), y);
+
+  pdfFooter(doc);
+  doc.save(`NOVA_ficha_tecnica_${slug(p.name)}.pdf`);
+  toast('Ficha técnica descargada');
+}
+
+/* ---------- Notificaciones ---------- */
+let toastTimer;
+function toast(msg) {
+  const t = el('toast');
+  t.textContent = msg;
+  t.classList.remove('opacity-0', 'translate-y-6');
+  t.classList.add('opacity-100', 'translate-y-0');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    t.classList.add('opacity-0', 'translate-y-6');
+    t.classList.remove('opacity-100', 'translate-y-0');
+  }, 2600);
+}
+
+/* ---------- Eventos ---------- */
+document.addEventListener('click', e => {
+  const t = e.target;
+  let n;
+  if ((n = t.closest('[data-compare]')))  return toggleCompare(+n.dataset.compare);
+  if ((n = t.closest('[data-open]')))     return openProduct(+n.dataset.open);
+  if ((n = t.closest('[data-add]')))      return addToCart(+n.dataset.add);
+  if ((n = t.closest('[data-tag]')))      return setFilter('tag', n.dataset.tag);
+  if ((n = t.closest('[data-cat]')))      return setFilter('cat', n.dataset.cat);
+  if ((n = t.closest('[data-dot]')))      { goTo(+n.dataset.dot); return startAuto(); }
+  if ((n = t.closest('[data-support]')))  return handleSupport(n.dataset.support);
+  if ((n = t.closest('[data-view]')))     return setView(n.dataset.view);
+  if ((n = t.closest('[data-pdf]')))      return makeFichaPDF(current);
+  if ((n = t.closest('[data-qty]')))      return changeQty(+n.dataset.id, +n.dataset.qty);
+  if ((n = t.closest('[data-remove]')))   return removeItem(+n.dataset.remove);
+  if ((n = t.closest('[data-close]')))    return setGroup(n.dataset.close, false);
+  if ((n = t.closest('[data-nav]')))      return setGroup('menu', false);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-open]')) {
+    return openProduct(+e.target.dataset.open);
+  }
+  if (e.key === 'Escape') {
+    for (const g of ['captcha', 'info', 'product', 'compare', 'cart', 'menu']) {
+      if (GROUPS[g].some(id => el(id).classList.contains('open'))) { setGroup(g, false); break; }
+    }
+    return;
+  }
+  const anyOpen = document.querySelector('.overlay.open, .drawer.open');
+  if (!anyOpen && e.key === 'ArrowRight') { goTo(slide + 1); startAuto(); }
+  if (!anyOpen && e.key === 'ArrowLeft')  { goTo(slide - 1); startAuto(); }
+});
+
+el('cartOverlay').addEventListener('click', () => setGroup('cart', false));
+el('compareOverlay').addEventListener('click', () => setGroup('compare', false));
+el('menuOverlay').addEventListener('click', () => setGroup('menu', false));
+el('productModal').addEventListener('click', e => { if (e.target === e.currentTarget) setGroup('product', false); });
+el('infoModal').addEventListener('click', e => { if (e.target === e.currentTarget) setGroup('info', false); });
+el('captchaModal').addEventListener('click', e => { if (e.target === e.currentTarget) setGroup('captcha', false); });
+
+el('menuBtn').addEventListener('click', () => setGroup('menu', true));
+el('cartBtn').addEventListener('click', () => setGroup('cart', true));
+el('currencyBtn').addEventListener('click', () => {
+  currency = otherCur();
+  store.set('moneda', currency);
+  updatePrices();
+});
+window.addEventListener('scroll', () => el('siteHeader').classList.toggle('shadow-2xl', window.scrollY > 20), { passive: true });
+
+el('searchInput').addEventListener('input', e => { state.q = e.target.value; renderGrid(); });
+el('sortSelect').addEventListener('change', e => { state.sort = e.target.value; renderGrid(); });
+
+el('pmAdd').addEventListener('click', () => { if (current) addToCart(current.id); });
+
+el('compareBar').addEventListener('click', () => { renderCompare(); setGroup('compare', true); });
+el('compareWa').addEventListener('click', compareWa);
+el('compareClear').addEventListener('click', () => {
+  compare = [];
+  store.set('comparar', compare);
+  paintCompare();
+  renderCompare();
+});
+
+el('calcModel').addEventListener('change', updateCalc);
+el('calcHours').addEventListener('input', updateCalc);
+el('calcRate').addEventListener('input', updateCalc);
+
+const carousel = el('carousel');
+el('prevSlide').addEventListener('click', () => { goTo(slide - 1); startAuto(); });
+el('nextSlide').addEventListener('click', () => { goTo(slide + 1); startAuto(); });
+carousel.addEventListener('mouseenter', stopAuto);
+carousel.addEventListener('mouseleave', startAuto);
+let touchX = null;
+carousel.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+carousel.addEventListener('touchend', e => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) { goTo(slide + (dx < 0 ? 1 : -1)); startAuto(); }
+  touchX = null;
+});
+
+el('checkoutBtn').addEventListener('click', startCheckout);
+el('capRefresh').addEventListener('click', newChallenge);
+el('captchaForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (el('hpField').value.trim()) { setGroup('captcha', false); return; }
+  const answer = Number(el('capAnswer').value.trim());
+  if (answer === capSum) {
+    setGroup('captcha', false);
+    sendOrder();
+    return;
+  }
+  const box = el('captchaModal').querySelector('.modal-box');
+  newChallenge();
+  el('capError').classList.add('hidden');
+  box.classList.remove('shake');
+  void box.offsetWidth;
+  box.classList.add('shake');
+});
+
+/* ---------- Inicialización ---------- */
+function init() {
+  const f = store.get('filtros', {});
+  if (f && (f.cat === 'all' || CATS[f.cat])) state.cat = f.cat;
+  if (f && (f.tag === 'all' || TAGS[f.tag])) state.tag = f.tag;
+
+  buildCarousel();
+  buildTags();
+  buildCalcOptions();
+  paintFilters();
+  renderGrid();
+  renderCart();
+  renderCompare();
+  paintCompare();
+  updateCalc();
+  fetchRate();
+  setInterval(fetchRate, RATE_REFRESH_MS);
+}
+init();
+
+})();
+</script>
+</body>
+</html>
